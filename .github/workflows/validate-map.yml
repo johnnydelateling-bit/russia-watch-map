@@ -1,0 +1,37 @@
+name: Validate map site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/validate-map.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Validate JavaScript
+        run: node --check docs/app.js
+      - name: Validate map data
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+          const topo = JSON.parse(fs.readFileSync("docs/regions.topojson", "utf8"));
+          const feed = JSON.parse(fs.readFileSync("docs/data.json", "utf8"));
+          if (topo.type !== "Topology" || topo.objects?.ru89?.geometries?.length !== 89) {
+            throw new Error("Expected 89 regional polygons");
+          }
+          if (!Array.isArray(feed.events) || feed.schema_version !== 1) {
+            throw new Error("Invalid public feed schema");
+          }
+          console.log("Validated", topo.objects.ru89.geometries.length, "regions and", feed.events.length, "feed events");
+          NODE
+      - name: Validate page entrypoint
+        run: test -s docs/index.html && grep -q 'docs/app.js\|./app.js' docs/index.html
