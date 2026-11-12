@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const DATA_URL = "./data.json";
+  const DATA_URL = "https://raw.githubusercontent.com/johnnydelateling-bit/russia-watch-map/main/docs/data.json";
   const REGIONS_URL = "./regions.topojson";
   const REFRESH_MS = 60_000;
   const FRESH_HOURS = 6;
