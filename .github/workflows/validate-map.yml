@@ -28,10 +28,28 @@ jobs:
           if (topo.type !== "Topology" || topo.objects?.ru89?.geometries?.length !== 89) {
             throw new Error("Expected 89 regional polygons");
           }
-          if (!Array.isArray(feed.events) || feed.schema_version !== 1) {
+          if (!Array.isArray(feed.events) || feed.schema_version !== 2) {
             throw new Error("Invalid public feed schema");
           }
-          console.log("Validated", topo.objects.ru89.geometries.length, "regions and", feed.events.length, "feed events");
+          const stats = feed.stats;
+          if (!stats || !Number.isInteger(stats.messages_24h) || stats.messages_24h < 0 ||
+              !Number.isInteger(stats.regions_6h) || stats.regions_6h < 0 ||
+              stats.sources !== 1) {
+            throw new Error("Invalid publication-channel counters");
+          }
+          for (const event of feed.events) {
+            if (event.source !== "RussiaWarTrackerAlerts" ||
+                event.source_name !== "Russia War Tracker Alerts" ||
+                typeof event.region !== "string" ||
+                !/^https:\/\/t\.me\/RussiaWarTrackerAlerts\/\d+$/.test(event.url)) {
+              throw new Error("Map event must point only to our publication channel");
+            }
+            if ("summary" in event || "text" in event || "original_source" in event) {
+              throw new Error("Public map event contains private source text");
+            }
+          }
+          console.log("Validated", topo.objects.ru89.geometries.length, "regions and",
+            feed.events.length, "feed events from one publication channel");
           NODE
       - name: Validate page entrypoint
         run: test -s docs/index.html && grep -q 'docs/app.js\|./app.js' docs/index.html
