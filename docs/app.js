@@ -2,7 +2,7 @@
   "use strict";
   const DATA_URL = "https://raw.githubusercontent.com/johnnydelateling-bit/russia-watch-map/main/docs/data.json";
   const REGIONS_URL = "./regions.topojson";
-  const REFRESH_MS = 60_000;
+  const REFRESH_MS = 10_000;
   const FRESH_HOURS = 6;
   const CATEGORY = {
     uav: { label: "БПЛА", color: "#f15d64" },
@@ -11,7 +11,7 @@
     other: { label: "Предупреждение", color: "#f2a94c" },
     clear: { label: "Отбой", color: "#57c69b" }
   };
-  const state = { events: [], category: "all", region: "", regionsLayer: null, map: null };
+  const state = { events: [], stats: null, category: "all", region: "", regionsLayer: null, map: null };
   const $ = id => document.getElementById(id);
   function shortRegion(name) {
     return String(name || "")
@@ -109,7 +109,7 @@
     const source=document.createElement("span");source.className="event-source";source.textContent=event.source_name||event.source||"Источник";meta.append(tag,source);
     card.append(top,meta);
     const url=safeSourceUrl(event.url);
-    if(url){const link=document.createElement("a");link.className="event-link";link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Открыть исходную публикацию ↗";card.append(link);}
+    if(url){const link=document.createElement("a");link.className="event-link";link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Открыть публикацию в нашем Telegram ↗";card.append(link);}
     return card;
   }
   function plural(n,forms){const n10=n%10,n100=n%100;if(n10===1&&n100!==11)return forms[0];if(n10>=2&&n10<=4&&(n100<12||n100>14))return forms[1];return forms[2];}
@@ -126,17 +126,17 @@
     const fragment=document.createDocumentFragment();filtered.forEach(event=>fragment.append(makeEventCard(event)));root.append(fragment);
   }
   function renderStats() {
-    const dayAgo=Date.now()-24*3600000;
-    const lastDay=state.events.filter(e=>Date.parse(e.posted_at)>=dayAgo);
-    const sources=new Set(lastDay.map(e=>e.source).filter(Boolean));
-    const activeRegions=new Set(state.events.filter(e=>e.state==="warning"&&eventAgeHours(e)<=FRESH_HOURS).map(e=>e.region));
-    $("stat-24h").textContent=lastDay.length;$("stat-regions").textContent=activeRegions.size;$("stat-sources").textContent=sources.size+"/4";
+    const stats=state.stats||{};
+    $("stat-24h").textContent=Number.isFinite(stats.messages_24h)?stats.messages_24h.toLocaleString("ru-RU"):"—";
+    $("stat-regions").textContent=Number.isFinite(stats.regions_6h)?stats.regions_6h.toLocaleString("ru-RU"):"—";
+    $("stat-sources").textContent=Number.isFinite(stats.sources)?stats.sources:"1";
   }
   async function loadFeed(manual=false) {
     const label=$("feed-state");
     try {
       const response=await fetch(DATA_URL+"?v="+Date.now(),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);
       const data=await response.json();const events=Array.isArray(data.events)?data.events:[];
+      state.stats=data.stats&&typeof data.stats==="object"?data.stats:null;
       state.events=events.filter(e=>e&&typeof e.region==="string"&&typeof e.source==="string"&&["uav","rocket","aviation","other"].includes(e.category)&&["warning","clear"].includes(e.state)&&safeSourceUrl(e.url)).sort((a,b)=>Date.parse(b.posted_at)-Date.parse(a.posted_at));
       label.textContent="Лента загружена";
       $("last-update").textContent=data.updated_at?"Данные: "+formatDate(data.updated_at):"Ожидание первой записи";
