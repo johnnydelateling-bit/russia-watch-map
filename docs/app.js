@@ -2,7 +2,7 @@
   "use strict";
   const DATA_URL = "https://raw.githubusercontent.com/johnnydelateling-bit/russia-watch-map/main/docs/data.json";
   const REGIONS_URL = "./regions.topojson";
-  const REFRESH_MS = 10_000;
+  const REFRESH_MS = 5_000;
   const FRESH_HOURS = 6;
   const CATEGORY = {
     uav: { label: "БПЛА", color: "#f15d64" },
