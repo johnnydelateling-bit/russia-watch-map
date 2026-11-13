@@ -106,7 +106,7 @@
     const tag=document.createElement("span");const category=CATEGORY[event.category]||CATEGORY.other;
     tag.className="tag "+(event.state==="clear"?"clear":event.category||"other");
     tag.textContent=event.state==="clear"?"Отбой · "+category.label:category.label;
-    const source=document.createElement("span");source.className="event-source";source.textContent=event.source_name||event.source||"Источник";meta.append(tag,source);
+    meta.append(tag);
     card.append(top,meta);
     const url=safeSourceUrl(event.url);
     if(url){const link=document.createElement("a");link.className="event-link";link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Открыть публикацию в нашем Telegram ↗";card.append(link);}
