@@ -62,7 +62,7 @@ jobs:
           if len(scripts) != 1:
               raise SystemExit("Expected one inline Ukraine Atlas application script")
           Path("/tmp/ukraine-atlas.js").write_text(scripts[0], encoding="utf-8")
-          for feature in ("JSZip.loadAsync(file)", "function parseKML", "StyleMap", "function exportKml", "function restoreDrawHistory"):
+          for feature in ("JSZip.loadAsync(file)", "ext==='zip'", "function parseKML", "StyleMap", "iconHref", "function exportKml", "function restoreDrawHistory", "objectMeta"):
               if feature not in html:
                   raise SystemExit("Missing expected map feature: " + feature)
           PY
