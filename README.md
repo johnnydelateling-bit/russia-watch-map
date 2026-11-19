@@ -34,3 +34,7 @@
 ## Технологии
 
 HTML, CSS, JavaScript, Leaflet, TopoJSON. Внешние библиотеки Leaflet и topojson-client загружаются с unpkg CDN.
+
+## Ukraine Atlas map workspace
+
+The interactive KML/KMZ workspace is published at https://johnnydelateling-bit.github.io/russia-watch-map/ukraine/ . It provides a browser-side KML/KMZ/GeoJSON importer, local layer tree, basemaps, layer visibility and styling, geometry selection, drawing, distance measurement, and GeoJSON export. User-selected files are parsed locally in the browser and are not uploaded or included in the public repository.
