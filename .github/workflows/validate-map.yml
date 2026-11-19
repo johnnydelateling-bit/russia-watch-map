@@ -51,5 +51,26 @@ jobs:
           console.log("Validated", topo.objects.ru89.geometries.length, "regions and",
             feed.events.length, "feed events from one publication channel");
           NODE
+      - name: Validate Ukraine Atlas KML/KMZ workspace
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path("docs/ukraine/index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, re.S)
+          scripts = [item for item in scripts if len(item.strip()) > 1000]
+          if len(scripts) != 1:
+              raise SystemExit("Expected one inline Ukraine Atlas application script")
+          Path("/tmp/ukraine-atlas.js").write_text(scripts[0], encoding="utf-8")
+          for feature in ("JSZip.loadAsync(file)", "function parseKML", "StyleMap", "function exportKml", "function restoreDrawHistory"):
+              if feature not in html:
+                  raise SystemExit("Missing expected map feature: " + feature)
+          PY
+          node --check /tmp/ukraine-atlas.js
+          test -s docs/ukraine/index.html
+          if find docs/ukraine -type f \( -iname '*.kml' -o -iname '*.kmz' \) | grep -q .; then
+            echo "Raw KMZ/KML data must not be committed to public Pages."
+            exit 1
+          fi
       - name: Validate page entrypoint
         run: test -s docs/index.html && grep -q 'docs/app.js\|./app.js' docs/index.html
