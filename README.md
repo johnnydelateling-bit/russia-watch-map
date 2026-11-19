@@ -2,13 +2,15 @@
 
 Публичная интерактивная карта региональных предупреждений, основанная на публикациях четырёх открытых Telegram-источников.
 
-## Включить сайт
+## Сайт и публикация
 
-1. Откройте **Settings → Pages** этого репозитория.
-2. В разделе **Build and deployment** выберите **Deploy from a branch**.
-3. Выберите ветку **main** и папку **/docs**, затем нажмите **Save**.
+Сайт публикуется из папки `docs` автоматически через GitHub Actions при обновлении файлов. Workflow `Deploy GitHub Pages` настраивает Pages и развёртывает весь каталог `docs`.
 
-Адрес сайта после публикации: https://johnnydelateling-bit.github.io/russia-watch-map/
+Главная страница: https://johnnydelateling-bit.github.io/russia-watch-map/
+
+Украинская интерактивная карта: https://johnnydelateling-bit.github.io/russia-watch-map/ukraine/
+
+Если GitHub Pages ещё не активирован в настройках репозитория, workflow пытается включить его автоматически. Историю публикаций можно смотреть во вкладке **Actions**.
 
 ## Подключить обновления от Telegram Monitor
 
